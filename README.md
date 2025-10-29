@@ -89,7 +89,7 @@ src/
 - Android Studio (Android开发)
 - Xcode (iOS开发)
 
-### 安装步骤
+### 安装步骤（使用 pnpm）
 
 1. **克隆项目**
 
@@ -100,9 +100,11 @@ src/
 2. **安装依赖**
 
    ```bash
-   npm install
-   # 或
-   yarn install
+   # 建议启用 Corepack（Node.js >= 16.13）
+   corepack enable
+   corepack prepare pnpm@latest --activate
+
+   pnpm install
    ```
 3. **iOS额外配置** (仅iOS)
 
@@ -112,22 +114,16 @@ src/
 4. **启动开发服务器**
 
    ```bash
-   npm start
-   # 或
-   yarn start
+   pnpm start
    ```
 5. **运行应用**
 
    ```bash
    # Android
-   npm run android
-   # 或
-   yarn android
+   pnpm android
 
    # iOS
-   npm run ios
-   # 或
-   yarn ios
+   pnpm ios
    ```
 
 ## 🎨 图标系统
