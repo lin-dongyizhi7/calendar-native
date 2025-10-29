@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useTheme } from '../theme/ThemeContext';
+import SvgIcon from '../components/SvgIcon';
 import { saveEvent, getEventById, deleteEvent } from '../storage/events';
 import { scheduleReminder, cancelReminderById } from '../services/reminder';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -52,25 +53,116 @@ export default function EventEditorScreen() {
 
   return (
     <View style={{ flex: 1, padding: 16, backgroundColor: theme.colors.background }}>
-      <Text style={{ color: theme.colors.text, marginBottom: 8 }}>标题</Text>
-      <TextInput value={title} onChangeText={setTitle} placeholder="输入标题" style={{ backgroundColor: '#fff', padding: 10, borderRadius: 8, marginBottom: 12 }} />
+      <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 16 }}>
+        <SvgIcon name="edit" size={20} color={theme.colors.primary} />
+        <Text style={{ color: theme.colors.text, fontSize: 18, fontWeight: '700', marginLeft: 8 }}>
+          {editingId ? '编辑日程' : '新建日程'}
+        </Text>
+      </View>
 
-      <Text style={{ color: theme.colors.text, marginBottom: 8 }}>开始时间（YYYY-MM-DD HH:mm）</Text>
-      <TextInput value={start} onChangeText={setStart} placeholder="2025-10-16 09:00" style={{ backgroundColor: '#fff', padding: 10, borderRadius: 8, marginBottom: 12 }} />
+      <View style={{ marginBottom: 16 }}>
+        <Text style={{ color: theme.colors.text, marginBottom: 8, fontWeight: '600' }}>📝 标题</Text>
+        <TextInput 
+          value={title} 
+          onChangeText={setTitle} 
+          placeholder="输入标题" 
+          style={{ 
+            backgroundColor: theme.colors.card, 
+            padding: 12, 
+            borderRadius: 8, 
+            borderWidth: 1,
+            borderColor: theme.colors.border,
+            color: theme.colors.text
+          }} 
+        />
+      </View>
 
-      <Text style={{ color: theme.colors.text, marginBottom: 8 }}>结束时间（YYYY-MM-DD HH:mm）</Text>
-      <TextInput value={end} onChangeText={setEnd} placeholder="2025-10-16 10:00" style={{ backgroundColor: '#fff', padding: 10, borderRadius: 8, marginBottom: 12 }} />
+      <View style={{ marginBottom: 16 }}>
+        <Text style={{ color: theme.colors.text, marginBottom: 8, fontWeight: '600' }}>🕐 开始时间（YYYY-MM-DD HH:mm）</Text>
+        <TextInput 
+          value={start} 
+          onChangeText={setStart} 
+          placeholder="2025-10-16 09:00" 
+          style={{ 
+            backgroundColor: theme.colors.card, 
+            padding: 12, 
+            borderRadius: 8, 
+            borderWidth: 1,
+            borderColor: theme.colors.border,
+            color: theme.colors.text
+          }} 
+        />
+      </View>
 
-      <Text style={{ color: theme.colors.text, marginBottom: 8 }}>备注</Text>
-      <TextInput value={desc} onChangeText={setDesc} placeholder="备注..." style={{ backgroundColor: '#fff', padding: 10, borderRadius: 8, marginBottom: 12 }} multiline />
+      <View style={{ marginBottom: 16 }}>
+        <Text style={{ color: theme.colors.text, marginBottom: 8, fontWeight: '600' }}>🕐 结束时间（YYYY-MM-DD HH:mm）</Text>
+        <TextInput 
+          value={end} 
+          onChangeText={setEnd} 
+          placeholder="2025-10-16 10:00" 
+          style={{ 
+            backgroundColor: theme.colors.card, 
+            padding: 12, 
+            borderRadius: 8, 
+            borderWidth: 1,
+            borderColor: theme.colors.border,
+            color: theme.colors.text
+          }} 
+        />
+      </View>
+
+      <View style={{ marginBottom: 24 }}>
+        <Text style={{ color: theme.colors.text, marginBottom: 8, fontWeight: '600' }}>📄 备注</Text>
+        <TextInput 
+          value={desc} 
+          onChangeText={setDesc} 
+          placeholder="备注..." 
+          style={{ 
+            backgroundColor: theme.colors.card, 
+            padding: 12, 
+            borderRadius: 8, 
+            borderWidth: 1,
+            borderColor: theme.colors.border,
+            color: theme.colors.text,
+            minHeight: 80
+          }} 
+          multiline 
+        />
+      </View>
 
       <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-        <TouchableOpacity onPress={onSave} style={{ backgroundColor: theme.colors.primary, paddingVertical: 12, paddingHorizontal: 18, borderRadius: 10 }}>
-          <Text style={{ color: 'white', fontWeight: '700' }}>保存</Text>
+        <TouchableOpacity 
+          onPress={onSave} 
+          style={{ 
+            backgroundColor: theme.colors.primary, 
+            paddingVertical: 12, 
+            paddingHorizontal: 18, 
+            borderRadius: 10,
+            flexDirection: 'row',
+            alignItems: 'center',
+            flex: 1,
+            marginRight: editingId ? 8 : 0
+          }}
+        >
+          <SvgIcon name="save" size={16} color="white" />
+          <Text style={{ color: 'white', fontWeight: '700', marginLeft: 4 }}>保存</Text>
         </TouchableOpacity>
         {editingId ? (
-          <TouchableOpacity onPress={onDelete} style={{ backgroundColor: '#ff5d5d', paddingVertical: 12, paddingHorizontal: 18, borderRadius: 10 }}>
-            <Text style={{ color: 'white', fontWeight: '700' }}>删除</Text>
+          <TouchableOpacity 
+            onPress={onDelete} 
+            style={{ 
+              backgroundColor: '#ff5d5d', 
+              paddingVertical: 12, 
+              paddingHorizontal: 18, 
+              borderRadius: 10,
+              flexDirection: 'row',
+              alignItems: 'center',
+              flex: 1,
+              marginLeft: 8
+            }}
+          >
+            <SvgIcon name="delete" size={16} color="white" />
+            <Text style={{ color: 'white', fontWeight: '700', marginLeft: 4 }}>删除</Text>
           </TouchableOpacity>
         ) : null}
       </View>
