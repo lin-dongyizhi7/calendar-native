@@ -16,4 +16,9 @@ declare module 'ical.js' {
   export const ICAL: any;
 }
 
+declare module '*.less' {
+  const styles: { [key: string]: any };
+  export default styles;
+}
+
 

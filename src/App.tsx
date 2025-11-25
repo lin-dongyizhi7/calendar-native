@@ -27,7 +27,7 @@ export default function App() {
     <ThemeProvider>
       <NavigationContainer theme={navTheme}>
         <Stack.Navigator>
-          <Stack.Screen name="Home" component={HomeScreen} options={{ title: '可爱日历' }} />
+          <Stack.Screen name="Home" component={HomeScreen} options={{ title: 'Calendar' }} />
           <Stack.Screen name="EventEditor" component={EventEditorScreen} options={{ title: '编辑日程' }} />
           <Stack.Screen name="Settings" component={SettingsScreen} options={{ title: '设置' }} />
         </Stack.Navigator>

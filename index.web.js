@@ -1,5 +1,6 @@
 import { AppRegistry } from 'react-native';
 import App from './src/App';
+import './web/index.less';
 
 // 注册应用
 AppRegistry.registerComponent('CalendarNative', () => App);
