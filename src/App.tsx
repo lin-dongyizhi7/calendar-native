@@ -1,38 +1,53 @@
 import React from 'react';
-import { NavigationContainer, DefaultTheme } from '@react-navigation/native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { BrowserRouter } from 'react-router-dom';
+import { Provider as PaperProvider, MD3LightTheme } from 'react-native-paper';
+import type { Settings as PaperSettings } from 'react-native-paper/lib/typescript/core/settings';
+import type { IconProps as PaperIconProps } from 'react-native-paper/lib/typescript/components/MaterialCommunityIcon';
 import { ThemeProvider } from './theme/ThemeContext';
-import HomeScreen from './screens/HomeScreen';
-import EventEditorScreen from './screens/EventEditorScreen';
-import SettingsScreen from './screens/SettingsScreen';
+import SvgIcon, { IconName } from './components/SvgIcon';
+import AppRoutes from './router/routes';
 
-export type RootStackParamList = {
-  Home: undefined;
-  EventEditor: { id?: string } | undefined;
-  Settings: undefined;
+const paperTheme = {
+  ...MD3LightTheme,
+  colors: {
+    ...MD3LightTheme.colors,
+    primary: '#b18bd9'
+  }
 };
 
-const Stack = createNativeStackNavigator<RootStackParamList>();
+const paperIconMap: Record<string, IconName> = {
+  'calendar-blank': 'month',
+  'dots-vertical': 'event',
+  plus: 'add',
+  'chevron-left': 'prevMonth',
+  'chevron-right': 'nextMonth',
+  'account-circle': 'themeCute',
+  cog: 'settings',
+  'bell-plus': 'event',
+  'plus-circle': 'add',
+  'calendar-check': 'event',
+  'account-sync': 'week',
+  bell: 'event',
+  information: 'today'
+};
 
-const navTheme = {
-  ...DefaultTheme,
-  colors: {
-    ...DefaultTheme.colors,
-    background: 'white'
+const paperSettings: PaperSettings = {
+  icon: ({ name, size = 24, color }: PaperIconProps) => {
+    const key = typeof name === 'string' ? name : undefined;
+    const mapped = (key && paperIconMap[key]) || (key as IconName) || 'event';
+    return <SvgIcon name={mapped} size={size} color={color} />;
   }
 };
 
 export default function App() {
   return (
-    <ThemeProvider>
-      <NavigationContainer theme={navTheme}>
-        <Stack.Navigator>
-          <Stack.Screen name="Home" component={HomeScreen} options={{ title: 'Calendar' }} />
-          <Stack.Screen name="EventEditor" component={EventEditorScreen} options={{ title: '编辑日程' }} />
-          <Stack.Screen name="Settings" component={SettingsScreen} options={{ title: '设置' }} />
-        </Stack.Navigator>
-      </NavigationContainer>
-    </ThemeProvider>
+    <BrowserRouter>
+      <PaperProvider theme={paperTheme} settings={paperSettings}>
+        <ThemeProvider>
+          <AppRoutes />
+        </ThemeProvider>
+      </PaperProvider>
+    </BrowserRouter>
   );
 }
 

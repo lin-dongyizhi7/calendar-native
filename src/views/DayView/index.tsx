@@ -1,70 +1,68 @@
-import React, { useMemo, useState } from 'react';
+import React from 'react';
 import { View, Text } from 'react-native';
+import { DataTable, Button, IconButton } from 'react-native-paper';
 import { useTheme } from '../../theme/ThemeContext';
-import SvgIcon from '../../components/SvgIcon';
-import { formatYMD } from '../../utils/date';
-import { listEventsByDate } from '../../storage/events';
+import { formatYMD, parseYMD } from '../../utils/date';
+import type { CalendarEvent } from '../../types/event';
 import styles from './index.less';
 
-export default function DayView() {
+interface DayViewProps {
+  selectedDate: string;
+  onSelectDate: (ymd: string) => void;
+  events: CalendarEvent[];
+  onAddPress?: () => void;
+}
+
+function shiftDay(ymd: string, diff: number) {
+  const d = parseYMD(ymd);
+  d.setDate(d.getDate() + diff);
+  return formatYMD(d);
+}
+
+export default function DayView({ selectedDate, onSelectDate, events, onAddPress }: DayViewProps) {
   const { theme } = useTheme();
-  const [cursor] = useState<Date>(new Date());
-  const ymd = useMemo(() => formatYMD(cursor), [cursor]);
-  const events = listEventsByDate(ymd);
 
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <SvgIcon name="day" size={20} color={theme.colors.primary} />
-        <Text style={[styles.headerTitle, { color: theme.colors.text }]}>{ymd}</Text>
+        <Text style={[styles.headerTitle, { color: theme.colors.text }]}>{selectedDate}</Text>
+        <View style={styles.headerActions}>
+          <IconButton icon="chevron-left" onPress={() => onSelectDate(shiftDay(selectedDate, -1))} />
+          <IconButton icon="chevron-right" onPress={() => onSelectDate(shiftDay(selectedDate, 1))} />
+          <Button mode="outlined" compact onPress={() => onSelectDate(formatYMD(new Date()))}>
+            今天
+          </Button>
+        </View>
       </View>
 
-      {events.length === 0 ? (
-        <View style={styles.empty}>
-          <SvgIcon name="event" size={48} color={theme.colors.secondary} />
-          <Text style={[styles.emptyText, { color: theme.colors.text }]}>今天还没有日程～</Text>
-          <Text style={[styles.emptyHint, { color: theme.colors.secondary }]}>
-            点击右下角的"新建"按钮添加日程吧！
-          </Text>
-        </View>
-      ) : (
-        events.map(ev => (
-          <View
-            key={ev.id}
-            style={[
-              styles.eventCard,
-              {
-                backgroundColor: theme.colors.card,
-                borderColor: theme.colors.border,
-                shadowColor: theme.colors.primary,
-                shadowOffset: { width: 0, height: 2 },
-                shadowOpacity: 0.1,
-                shadowRadius: 4,
-                elevation: 2
-              }
-            ]}
-          >
-            <View style={styles.eventTitleRow}>
-              <SvgIcon name="event" size={16} color={theme.colors.primary} />
-              <Text style={[styles.eventTitle, { color: theme.colors.text }]}>{ev.title}</Text>
-            </View>
-
-            <View style={styles.eventTimeRow}>
-              <SvgIcon name="time" size={14} color={theme.colors.secondary} />
-              <Text style={[styles.eventTimeText, { color: theme.colors.text }]}>
-                {ev.start} - {ev.end}
-              </Text>
-            </View>
-
-            {ev.description ? (
-              <View style={styles.eventDescRow}>
-                <SvgIcon name="edit" size={14} color={theme.colors.secondary} />
-                <Text style={[styles.eventDescText, { color: theme.colors.text }]}>{ev.description}</Text>
-              </View>
-            ) : null}
+      <View style={styles.tableWrapper}>
+        {events.length === 0 ? (
+          <View style={styles.empty}>
+            <Text style={[styles.emptyText, { color: theme.colors.text }]}>暂无日程，点击下方按钮新增～</Text>
           </View>
-        ))
-      )}
+        ) : (
+          <DataTable>
+            <DataTable.Header>
+              <DataTable.Title>时间</DataTable.Title>
+              <DataTable.Title>标题</DataTable.Title>
+              <DataTable.Title numeric>提醒</DataTable.Title>
+            </DataTable.Header>
+            {events.map(ev => (
+              <DataTable.Row key={ev.id}>
+                <DataTable.Cell>{`${(ev.start || '').split(' ')[1]}~${(ev.end || '').split(' ')[1]}`}</DataTable.Cell>
+                <DataTable.Cell>{ev.title}</DataTable.Cell>
+                <DataTable.Cell numeric>
+                  {ev.reminderMinutesBefore != null ? `提前${ev.reminderMinutesBefore}分钟` : '无'}
+                </DataTable.Cell>
+              </DataTable.Row>
+            ))}
+          </DataTable>
+        )}
+      </View>
+
+      <Button icon="plus" mode="contained" style={{ marginTop: 16 }} onPress={onAddPress}>
+        新增事项
+      </Button>
     </View>
   );
 }

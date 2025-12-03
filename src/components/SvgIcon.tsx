@@ -82,6 +82,17 @@ const icons = {
     <polyline points="17,10 12,5 7,10" stroke="#f7a8d0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
     <line x1="12" y1="5" x2="12" y2="15" stroke="#f7a8d0" stroke-width="2" stroke-linecap="round"/>
   </svg>`,
+
+  year: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="12" cy="12" r="9" stroke="#b18bd9" stroke-width="2" fill="#fde0f0"/>
+    <path d="M12 6v6l4 2" stroke="#b18bd9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="12" cy="12" r="1.5" fill="#f7a8d0"/>
+  </svg>`,
+  
+  time: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="12" cy="12" r="9" stroke="#b18bd9" stroke-width="2" fill="#fde0f0"/>
+    <path d="M12 7v5l3 2" stroke="#b18bd9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>`,
   
   prevMonth: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path d="M15 18l-6-6 6-6" stroke="#b18bd9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -125,7 +136,7 @@ const icons = {
   </svg>`,
 };
 
-type IconName = keyof typeof icons;
+export type IconName = keyof typeof icons;
 
 interface SvgIconProps {
   name: IconName;
@@ -148,13 +159,15 @@ const iconChars = {
   prevMonth: '◀️',
   nextMonth: '▶️',
   today: '📆',
+  year: '🗓️',
+  time: '⏰',
   event: '⭐',
   themeCute: '🌸',
   themeDark: '🌙',
-};
+} as Record<IconName, string>;
 
 export default function SvgIcon({ name, size = 24, color }: SvgIconProps) {
-  const iconChar = iconChars[name];
+  const iconChar = iconChars[name] || iconChars.event;
   
   return (
     <Text style={{ 

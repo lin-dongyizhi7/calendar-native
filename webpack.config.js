@@ -1,5 +1,6 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const rnLessLoader = path.resolve(__dirname, 'webpack/loaders/rnLessLoader.js');
 
 module.exports = {
   mode: 'development',
@@ -13,6 +14,9 @@ module.exports = {
     extensions: ['.web.js', '.web.ts', '.web.tsx', '.js', '.ts', '.tsx', '.json'],
     alias: {
       'react-native$': 'react-native-web',
+      'react-native-vector-icons/MaterialCommunityIcons': path.resolve(__dirname, 'src/components/MaterialCommunityIcons.tsx'),
+      '@react-native-vector-icons/material-design-icons': path.resolve(__dirname, 'src/components/MaterialCommunityIcons.tsx'),
+      '@expo/vector-icons/MaterialCommunityIcons': path.resolve(__dirname, 'src/components/MaterialCommunityIcons.tsx')
     },
   },
   module: {
@@ -36,6 +40,7 @@ module.exports = {
       },
       {
         test: /\.less$/,
+        include: path.resolve(__dirname, 'web'),
         use: [
           'style-loader',
           'css-loader',
@@ -46,6 +51,15 @@ module.exports = {
                 javascriptEnabled: true,
               },
             },
+          },
+        ],
+      },
+      {
+        test: /\.less$/,
+        exclude: path.resolve(__dirname, 'web'),
+        use: [
+          {
+            loader: rnLessLoader,
           },
         ],
       },

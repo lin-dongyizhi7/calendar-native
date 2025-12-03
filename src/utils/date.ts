@@ -6,6 +6,11 @@ export function formatYMD(d: Date): string {
   return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
 }
 
+export function parseYMD(ymd: string): Date {
+  const [y, m, d] = ymd.split('-').map(Number);
+  return new Date(y, (m || 1) - 1, d || 1);
+}
+
 export function getMonthMatrix(cursor: Date): Date[][] {
   const year = cursor.getFullYear();
   const month = cursor.getMonth();

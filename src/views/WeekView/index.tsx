@@ -1,15 +1,29 @@
-import React, { useMemo, useState } from 'react';
-import { View, Text } from 'react-native';
+import React, { useEffect, useMemo, useState } from 'react';
+import { View, Text, TouchableOpacity } from 'react-native';
 import { useTheme } from '../../theme/ThemeContext';
 import SvgIcon from '../../components/SvgIcon';
-import { getWeekDates, formatYMD } from '../../utils/date';
+import { getWeekDates, formatYMD, parseYMD } from '../../utils/date';
 import { listEventsByDate } from '../../storage/events';
 import styles from './index.less';
 
-export default function WeekView() {
+interface WeekViewProps {
+  selectedDate: string;
+  onSelectDate: (ymd: string) => void;
+}
+
+export default function WeekView({ selectedDate, onSelectDate }: WeekViewProps) {
   const { theme } = useTheme();
-  const [cursor] = useState<Date>(new Date());
+  const [cursor, setCursor] = useState<Date>(parseYMD(selectedDate));
   const days = useMemo(() => getWeekDates(cursor), [cursor]);
+  const todayYMD = formatYMD(new Date());
+
+  useEffect(() => {
+    const target = parseYMD(selectedDate);
+    const inSameWeek = getWeekDates(cursor).some(item => formatYMD(item.date) === selectedDate);
+    if (!inSameWeek) {
+      setCursor(target);
+    }
+  }, [cursor, selectedDate]);
 
   return (
     <View style={styles.container}>
@@ -22,10 +36,32 @@ export default function WeekView() {
 
       <View style={styles.weekRow}>
         {days.map((d, i) => {
-          const events = listEventsByDate(formatYMD(d.date));
+          const dayYMD = formatYMD(d.date);
+          const events = listEventsByDate(dayYMD);
+          const isToday = dayYMD === todayYMD;
+          const isSelected = dayYMD === selectedDate;
           return (
-            <View key={i} style={styles.dayColumn}>
-              <Text style={[styles.dayNumber, { color: theme.colors.text }]}>{d.date.getDate()}</Text>
+            <TouchableOpacity
+              key={i}
+              style={styles.dayColumn}
+              onPress={() => onSelectDate(dayYMD)}
+              activeOpacity={0.8}
+            >
+              <View
+                style={[
+                  styles.dayNumberWrapper,
+                  isToday && {
+                    borderColor: theme.colors.primary,
+                    backgroundColor: theme.colors.primary + '22'
+                  },
+                  isSelected && {
+                    borderColor: theme.colors.primary,
+                    backgroundColor: theme.colors.primary + '33'
+                  }
+                ]}
+              >
+                <Text style={[styles.dayNumber, { color: theme.colors.text }]}>{d.date.getDate()}</Text>
+              </View>
               <Text style={[styles.weekdayText, { color: theme.colors.secondary }]}>
                 {['日', '一', '二', '三', '四', '五', '六'][d.date.getDay()]}
               </Text>
@@ -45,7 +81,7 @@ export default function WeekView() {
                   </Text>
                 </View>
               ))}
-            </View>
+            </TouchableOpacity>
           );
         })}
       </View>

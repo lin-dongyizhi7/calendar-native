@@ -1,27 +1,30 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity } from 'react-native';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useTheme } from '../../theme/ThemeContext';
 import SvgIcon from '../../components/SvgIcon';
 import { saveEvent, getEventById, deleteEvent } from '../../storage/events';
 import { scheduleReminder, cancelReminderById } from '../../services/reminder';
-import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import type { RootStackParamList } from '../../App';
 import type { NewCalendarEvent } from '../../types/event';
+import { formatYMD } from '../../utils/date';
 import styles from './index.less';
-
-type Nav = NativeStackNavigationProp<RootStackParamList, 'EventEditor'>;
 
 export default function EventEditorScreen() {
   const { theme } = useTheme();
-  const navigation = useNavigation<Nav>();
-  const route = useRoute();
-  const editingId = (route.params as { id?: string } | undefined)?.id;
+  const navigate = useNavigate();
+  const { id } = useParams<{ id?: string }>();
+  const [searchParams] = useSearchParams();
+  const editingId = id;
 
   const [title, setTitle] = useState('');
   const [start, setStart] = useState('');
   const [end, setEnd] = useState('');
   const [desc, setDesc] = useState('');
+  const defaultDate = searchParams.get('defaultDate');
+  const defaultReminder = searchParams.get('defaultReminder');
+  const [reminderMinutes, setReminderMinutes] = useState<number | undefined>(
+    defaultReminder ? parseInt(defaultReminder, 10) : 30
+  );
 
   useEffect(() => {
     if (editingId) {
@@ -32,16 +35,28 @@ export default function EventEditorScreen() {
           setStart(e.start || '');
           setEnd(e.end || '');
           setDesc(e.description || '');
+          setReminderMinutes(e.reminderMinutesBefore);
         }
       })();
+    } else {
+      const baseDate = defaultDate || formatYMD(new Date());
+      setStart(`${baseDate} 09:00`);
+      setEnd(`${baseDate} 10:00`);
     }
-  }, [editingId]);
+  }, [editingId, defaultDate]);
 
   async function onSave() {
-    const event: NewCalendarEvent = { id: editingId, title, start, end, description: desc };
+    const event: NewCalendarEvent = {
+      id: editingId,
+      title,
+      start,
+      end,
+      description: desc,
+      reminderMinutesBefore: reminderMinutes
+    };
     await saveEvent(event);
     await scheduleReminder(event as any);
-    navigation.goBack();
+    navigate(-1);
   }
 
   async function onDelete() {
@@ -49,7 +64,7 @@ export default function EventEditorScreen() {
       await deleteEvent(editingId);
       await cancelReminderById(editingId);
     }
-    navigation.goBack();
+    navigate(-1);
   }
 
   return (
@@ -128,6 +143,27 @@ export default function EventEditorScreen() {
             }
           ]}
           multiline
+        />
+      </View>
+
+      <View style={styles.field}>
+        <Text style={[styles.fieldLabel, { color: theme.colors.text }]}>⏰ 提醒（提前分钟）</Text>
+        <TextInput
+          value={reminderMinutes != null ? String(reminderMinutes) : ''}
+          onChangeText={val => {
+            const num = Number(val);
+            setReminderMinutes(Number.isNaN(num) ? undefined : num);
+          }}
+          placeholder="30"
+          keyboardType="numeric"
+          style={[
+            styles.input,
+            {
+              backgroundColor: theme.colors.card,
+              borderColor: theme.colors.border,
+              color: theme.colors.text
+            }
+          ]}
         />
       </View>
 
